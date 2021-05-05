@@ -32,47 +32,47 @@ def show_img(img, title=None):
     plt.title(title, color='w')
   plt.axis('off')
 
-def show_boxes(img, sample, classes=None):
+def show_boxes(img, boxes):
   show_img(img)
   ax = plt.gca()
-  boxes = sample['boxes']
-  labels = sample['labels']
-  xmin, xmax = ax.get_xlim()
-  ymax, ymin = ax.get_ylim()
-  isx, isy = xmax-xmin, ymax-ymin
-  for i in range(boxes.shape[0]):
-    box = boxes[i]
-    label = labels[i]
+  # xmin, xmax = ax.get_xlim()
+  # ymax, ymin = ax.get_ylim()
+  # isx, isy = xmax-xmin, ymax-ymin
+  for box in boxes:
     x = box[0]
     y = box[1]
     w = box[2] - x
     h = box[3] - y
     bbox = patches.Rectangle((x, y), w, h, ec='r', fc='none')
     ax.add_patch(bbox)
-    if classes:
-      plt.text(x, y, classes[label.item()], backgroundcolor='r', c='w')
+    # if classes:
+    #   plt.text(x, y, classes[label.item()], backgroundcolor='r', c='w')
+  plt.show()
 
 def get_FRCNN_model(num_classes):
   model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
-
   in_features = model.roi_heads.box_predictor.cls_score.in_features
-
   model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
-
   return model
 
-def load_model(filepath):
+def load_model(filepath, device=torch.device('cpu')):
   model = get_FRCNN_model(len(classes)+1)
-  model.load_state_dict(torch.load(filepath))
+  model.load_state_dict(torch.load(filepath, map_location=device))
   model.eval()
   return model
 
-def detect(model, img, device, confidence=0.6, nms=0.4):
+def detect(model, img, device, confidence=0.6, iou=0.4):
   with torch.no_grad():
     img_tensor = torchvision.transforms.ToTensor()(img)
-    detections = model(img_tensor.to(device))
-    detections = torchvision.ops.nms(detections, confidence, nms)
-    return detections
+    detections = model([img_tensor.to(device)])
+    print("Boxes detected:")
+    print(detections)
+    keeps = torchvision.ops.nms(detections[0]["boxes"], detections[0]["scores"], iou) # Not entirely sure what the iou_threshold is
+    detections_filtered =[]
+    for i in range(detections[0]["boxes"].shape[0]):
+      if detections[0]["scores"][i] >= confidence and i in keeps:
+        detections_filtered.append(detections[0]["boxes"][i])
+    return detections_filtered
 
 # Example/Test
 print("Running")
@@ -83,8 +83,9 @@ else:
   device = torch.device('cpu')
   print("On CPU")
 fp = sys.argv[1]
-model = load_model(fp)
-img = sys.arg[2]
+model = load_model(fp, device)
+img = sys.argv[2]
 img = Image.open(img).convert('RGB')
 detections = detect(model, img, device)
 print(detections)
+show_boxes(img, detections)
