@@ -19,6 +19,7 @@ from PIL import Image
 import cv2
 import ffmpeg
 import parser
+from sort import *
 
 TEST = True
 TEST_PLAYBACK = False
@@ -99,11 +100,26 @@ def detect(model, img, device, confidence=0.6, iou=0.4):
     keeps = torchvision.ops.nms(detections[0]["boxes"], detections[0]["scores"], iou) 
     detections_filtered = []
     labels = []
+    scores = []
     for i in range(detections[0]["boxes"].shape[0]):
       if detections[0]["scores"][i] >= confidence and i in keeps:
         detections_filtered.append(detections[0]["boxes"][i])
         labels.append(detections[0]["labels"][i])
-    return detections_filtered, labels
+        scores.append(detections[0]["scores"][i])
+    return detections_filtered, labels, scores
+
+'''
+The SORT motion tracker requires detections to be passed in a different 
+format. This function converts detections to that format.
+'''
+def convert_bbox_score(boxes, scores):
+  array = np.empty((len(scores), 5))
+  for i in range(len(scores)):
+    box = boxes[i].numpy()
+    score = scores[i].item()
+    det = np.append(box, score)
+    array[i] = det
+  return array
 
 '''
 Given a Pytorch Faster RCNN model and video path, identifies
@@ -127,6 +143,8 @@ def track(model, vid_path, device, confidence=0.6, iou=0.4):
   frame = cap.get(cv2.CAP_PROP_POS_FRAMES)
   detections = []
   labels = []
+  ids = []
+  mot_tracker = Sort()
   while True:
     ready, curr_frame = cap.read()
     while not ready:
@@ -145,16 +163,32 @@ def track(model, vid_path, device, confidence=0.6, iou=0.4):
       # plt.pause(frametime)
       # plt.close()
     
-    curr_detections, curr_labels = detect(model, curr_frame, device, confidence, iou)
+    curr_detections, curr_labels, curr_scores = detect(model, curr_frame, device, confidence, iou)
+    curr_ids = []
+    if TEST:
+      print(curr_detections)
+    if curr_detections is not None:
+      tracked_objects = convert_bbox_score(curr_detections, curr_scores)
+      tracked_objects = mot_tracker.update(tracked_objects)
+      if TEST:
+        print(tracked_objects)
+      curr_detections = []
+      curr_labels = []
+      for x1, y1, x2, y2, obj_id in tracked_objects:
+        curr_detections.append([x1, y1, x2, y2])
+        curr_ids.append(obj_id)
+    else:
+      mot_tracker.update()
     detections.append(curr_detections)
-    labels.append(curr_labels)
+    # labels.append(curr_labels)
+    ids.append(curr_ids)
 
     if cap.get(cv2.CAP_PROP_POS_FRAMES) == cap.get(cv2.CAP_PROP_FRAME_COUNT): # Break when video is done
       break
 
   cap.release()
-  assert len(detections) == len(labels), "Mismatch between number of detections and labels."
-  return detections, labels
+  assert len(detections) == len(ids), "Mismatch between number of detections and ids."
+  return detections, ids
 
 # Example/Test
 if __name__ == '__main__':
@@ -192,7 +226,7 @@ if __name__ == '__main__':
     print("Working on image")
     img = sys.argv[2]
     img = Image.open(img).convert('RGB')
-    detections, labels = detect(model, img, device)
+    detections, labels, scores = detect(model, img, device)
     if TEST:
       print(detections)
       print(labels)
@@ -201,7 +235,7 @@ if __name__ == '__main__':
     print("Working on video")
     vid_path = sys.argv[2]
     # On my CPU it took ~35 minutes to process a ~17 second 720p video.
-    detections, labels = track(model, vid_path, device)
+    detections, ids = track(model, vid_path, device)
     if TEST:
       print(detections)
 
