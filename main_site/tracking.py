@@ -17,12 +17,10 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from PIL import Image
 import cv2
-import ffmpeg
-import parser
 from sort import *
 
 TEST = True
-TEST_PLAYBACK = False
+TEST_PLAYBACK = True
 
 
 '''
@@ -130,17 +128,13 @@ Returns a list of all detections and a list of all labels done by
 the model in each frame.
 '''
 def track(model, vid_path, device, confidence=0.6, iou=0.4): 
-  if TEST:
-    metadata = ffmpeg.probe(vid_path)["streams"][0]
-    fps = eval(parser.expr(metadata["r_frame_rate"]).compile())
-    # nb_frames = int(metadata["nb_frames"])
-    # length = float(metadata["duration"])
-    # print(str(fps) + " " + str(nb_frames) + " " +str(length))
-    frametime = int((1 / fps) * 1000) # Frametime is 1 / fps. Multiply by 1000 to get it in ms.
-    print(frametime)
-
   cap = cv2.VideoCapture(vid_path)
-  frame = cap.get(cv2.CAP_PROP_POS_FRAMES)
+  if TEST:
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    frametime = int((1 / fps) * 1000) # Frametime is 1 / fps. Multiply by 1000 to get it in ms.
+    print("Frametime is: " + str(frametime) + " ms")
+
+  # frame = cap.get(cv2.CAP_PROP_POS_FRAMES)
   detections = []
   labels = []
   ids = []
@@ -151,37 +145,36 @@ def track(model, vid_path, device, confidence=0.6, iou=0.4):
       print("Frame not ready")
       cap.set(cv2.CAP_PROP_POS_FRAMES, frame-1)
       ready, curr_frame = cap.read()
-
-    img = Image.fromarray(curr_frame)
     
     if TEST_PLAYBACK and TEST:
       cv2.imshow('video', curr_frame)
       cv2.waitKey(frametime)
       # Only have the above or below commented out at a time
+      # img = Image.fromarray(curr_frame)
       # show_img(img)
       # plt.show(block=False)
       # plt.pause(frametime)
       # plt.close()
-    
-    curr_detections, curr_labels, curr_scores = detect(model, curr_frame, device, confidence, iou)
-    curr_ids = []
-    if TEST:
-      print(curr_detections)
-    if curr_detections is not None:
-      tracked_objects = convert_bbox_score(curr_detections, curr_scores)
-      tracked_objects = mot_tracker.update(tracked_objects)
-      if TEST:
-        print(tracked_objects)
-      curr_detections = []
-      curr_labels = []
-      for x1, y1, x2, y2, obj_id in tracked_objects:
-        curr_detections.append([x1, y1, x2, y2])
-        curr_ids.append(obj_id)
     else:
-      mot_tracker.update()
-    detections.append(curr_detections)
-    # labels.append(curr_labels)
-    ids.append(curr_ids)
+      curr_detections, curr_labels, curr_scores = detect(model, curr_frame, device, confidence, iou)
+      curr_ids = []
+      if TEST:
+        print(curr_detections)
+      if curr_detections is not None:
+        tracked_objects = convert_bbox_score(curr_detections, curr_scores)
+        tracked_objects = mot_tracker.update(tracked_objects)
+        if TEST:
+          print(tracked_objects)
+        curr_detections = []
+        curr_labels = []
+        for x1, y1, x2, y2, obj_id in tracked_objects:
+          curr_detections.append([x1, y1, x2, y2])
+          curr_ids.append(obj_id)
+      else:
+        mot_tracker.update()
+      detections.append(curr_detections)
+      # labels.append(curr_labels)
+      ids.append(curr_ids)
 
     if cap.get(cv2.CAP_PROP_POS_FRAMES) == cap.get(cv2.CAP_PROP_FRAME_COUNT): # Break when video is done
       break

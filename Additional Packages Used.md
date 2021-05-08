@@ -9,7 +9,3 @@ SORT:
 Primarily algorithm that turned our object detection model into a motion tracking model.
 Found here: https://github.com/abewley/sort
 
-FFmpeg:
-Used to extract necessary video metadata.
-https://ffmpeg.org/
-Note: We used a Python wrapper for FFmpeg found here: https://github.com/kkroening/ffmpeg-python
