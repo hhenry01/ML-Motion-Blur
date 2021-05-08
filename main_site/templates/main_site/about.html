@@ -1,0 +1,47 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <!-- <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> -->
+    <title>Video Improvement</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;500;600;700;800&display=swap"
+            rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <!-- <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;500;600;700;800&display=swap" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"> -->
+  </head>
+  <body>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script> -->
+    
+    <nav>
+      <ul class="nav_bar">
+        <li><a class="nav-link" href="{% url 'main_site-home' %}">Upload</a></li>
+        <li class = "floatRight"><a class="nav-link" href="{% url 'main_site-about' %}">Our Goal</a></li>
+        <li class = "dropdownIcon"><a href="">&#9776;</a></li>
+      </ul>
+    </nav>
+
+    <div class="page">
+        <h1>Abstract</h1>
+        <p>Since videos are just successive images rapidly shown one after the other, there are inevitably gaps in between the frames. 
+          This is often problematic in videos involving a lot of motion as it can make the video look “choppy” or “not smooth”. 
+          Aside from recording at a higher framerate, which must be done with foresight and cannot be done in post, the primary remedies are motion blur and interpolation. 
+          However, these effects are applied to the entire frame, blurring and impacting objects in the background where the intended effect of increased motion is not desired, 
+          harming visual clarity. Per-object motion blur, on the other hand, seeks to only blur objects that are actually moving, and not just moving because the camera is moving. 
+          But this technique is meant for animations, where objects that are and are not “meant” to move are easily identified. I propose a machine learning object detection model, 
+          where given a video or the frames of a video, identifies objects in which motion fluid motion is desired (like a ball being thrown or hand waving). 
+          After the objects are identified, the non-ML portion will blur the motion, either by inserting frame(s) with the bound object in-between or layering the blurred 
+          frame on top of an existing one. This is to be achieved by using the bounding box coordinates to identify which part of the image (the object) to “move” to the 
+          in-between point of the frames. The output will be a video or a series of frames/images with the per object blur effect applied. Additionally, the intensity of 
+          the blur effect will be determined by the velocity of the object detected. The input method will be uploading a pre-existing video or series of images to a client 
+          that processes the request, which will run locally on a desktop application. The output method will be a preview video of the modifications made and the option to save it.</p>
+      </form>
+    </div>
+</body>
+</html>
