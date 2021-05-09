@@ -18,10 +18,11 @@ import matplotlib.patches as patches
 from PIL import Image
 import cv2
 from sort import *
+import pandas as pd
 
-TEST = True
-TEST_PLAYBACK = True
-
+TEST = False
+TEST_PLAYBACK = False
+SAVE = False
 
 '''
 Only preps the image for showing. Need to include
@@ -165,11 +166,11 @@ def track(model, vid_path, device, confidence=0.6, iou=0.4):
         tracked_objects = mot_tracker.update(tracked_objects)
         if TEST:
           print(tracked_objects)
-        curr_detections = []
-        curr_labels = []
-        for x1, y1, x2, y2, obj_id in tracked_objects:
-          curr_detections.append([x1, y1, x2, y2])
-          curr_ids.append(obj_id)
+        curr_detections = tracked_objects[:,:4]
+        curr_ids = tracked_objects[:, 4]
+        if TEST:
+          print(curr_detections)
+          print(curr_ids)
       else:
         mot_tracker.update()
       detections.append(curr_detections)
@@ -231,5 +232,10 @@ if __name__ == '__main__':
     detections, ids = track(model, vid_path, device)
     if TEST:
       print(detections)
+    if SAVE:
+      df = pd.DataFrame(columns=["Boxes", "IDs"])
+      df["Boxes"] = detections
+      df["IDs"] = ids
+      df.to_csv("test_output.csv")
 
     
