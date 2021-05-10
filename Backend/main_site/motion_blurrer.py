@@ -330,7 +330,7 @@ def motion_blur(frame1_path, boxes1, id1, frame2_path, boxes2, id2, blend_weight
   for j in range(len(id1)):
     if id1[j] in id2:
       check = 1
-      x = id2.index(id1[j])
+      x = np.where(id2 == id1[j])[0][0]
      
       frame_a_top_left = (int(boxes1[j][0]), int(boxes1[j][1]))
       frame_a_bottom_right = (int(boxes1[j][2]), int(boxes1[j][3]))
@@ -474,16 +474,16 @@ def controller(boxes, id, path_to_video, path_for_frames, path_to_new_video):
   frames_added = 0
 
   #count = amount of frames we have.
-  for i in range(4):
+  for i in range(count):
 
       blurred = motion_blur(f"{path_for_frames}/frame{i}.jpg",boxes[i],id[i],f"{path_for_frames}/frame{i+1}.jpg",
                             boxes[i+1],id[i+1], 0.3, fps)
       
       if blurred[1] == 1:
         #add blurred image between frames
-        add_frames_to_video(blurred[0],size,i+1+frames_added,200,frame_array) #200 for testing purposes, change later
+        add_frames_to_video(blurred[0],size,i+1+frames_added,1,frame_array) #200 for testing purposes, change later
         #keep track of offset needed due to additional frames.
-        frames_added += 201 #change this too
+        frames_added += 1 #change this too
   
   convert_frames_to_video(f"{path_to_new_video}/output4.avi", int(fps), frame_array, size)
   return (frame_array)
