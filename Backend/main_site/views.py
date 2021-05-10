@@ -1,10 +1,12 @@
 from django.shortcuts import render
 from django.core.files.storage import FileSystemStorage
-# from . import tracking
+from . import tracking
+from . import motion_blur
 import os
 import pathlib
 from pathlib import Path
 from django.http import HttpResponse
+import torch
 
 # Create your views here.
 def home(request):
@@ -25,7 +27,8 @@ def about(request):
 def processVid(request):
     parent_dir = pathlib.Path('views.py').parent.absolute()
     path = f'{parent_dir}/media/video'
-    # model = tracking.load_model('Model.pt', len(tracking.classes) + 1)
-    # detections, labels = tracking.track(model, path)
+    model = tracking.load_model(f'{parent_dir}/main_site/Model.pt', 17)
+    boxes, ids = tracking.track(model, path, torch.device('cpu'))
+    motion_blur.controller(boxes, ids, path, f'{parent_dir}/main_site/frames', f'{parent_dir}/media')
 
-    return HttpResponse("<h1>Test page to process the video</h1>")
+    return render(request, 'main_site/processVid.html')

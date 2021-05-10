@@ -17,8 +17,9 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from PIL import Image
 import cv2
-from sort import *
+from . import sort
 import pandas as pd
+import numpy as np
 
 TEST = False
 TEST_PLAYBACK = False
@@ -139,7 +140,7 @@ def track(model, vid_path, device, confidence=0.6, iou=0.4):
   detections = []
   labels = []
   ids = []
-  mot_tracker = Sort()
+  mot_tracker = sort.Sort()
   while True:
     ready, curr_frame = cap.read()
     while not ready:
