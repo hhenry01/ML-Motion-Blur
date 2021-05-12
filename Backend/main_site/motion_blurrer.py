@@ -346,7 +346,7 @@ def motion_blur(frame1_path, boxes1, id1, frame2_path, boxes2, id2, blend_weight
       #time between frames in 1/fps, so speed is just distance times the frames
       speed = distance * fps 
 
-      if speed == 0:
+      if speed < 1:
         speed = 1
       # Specify the kernel size.
       # The greater the size, the more the motion.
@@ -489,5 +489,3 @@ def controller(boxes, id, path_to_video, path_for_frames, path_to_new_video):
   
   convert_frames_to_video(f"{path_to_new_video}/output4.avi", int(fps), frame_array, size)
   return (frame_array)
-
-np.zeros((0,0))
