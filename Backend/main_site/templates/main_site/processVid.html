@@ -38,13 +38,13 @@
         <button type="submit">Upload file</button>
       </form>
       <form>
-        {% if url %}
-          <p>Uploaded file: <a href="{{ url }}" target="_blank">{{ url }}</a></p>
+        {% if path %}
+          <p>Uploaded file: <a href="{{ path }}" target="_blank">{{ path }}</a></p>
         {% endif %}
       </form>
       <form>
         <video width="320" height="240" controls>
-          <source src="{{ url }}">
+          <source src="{{ path }}">
           Your browser does not support the video tag.
         </video>
       </form>
