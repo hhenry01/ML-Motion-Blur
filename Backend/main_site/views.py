@@ -31,9 +31,9 @@ def processVid(request):
     context = {}
     parent_dir = pathlib.Path('views.py').parent.absolute()
     path = f'{parent_dir}/media/video'
-    context['path'] = f'{parent_dir}/media/video'
+    context['path'] = f'file:///{parent_dir}/media/output4.avi'
     model = tracking.load_model(f'{parent_dir}/main_site/Model.pt', 17)
     boxes, ids = tracking.track(model, path, torch.device('cpu'))
-    motion_blur.controller(boxes, ids, path, f'{parent_dir}/main_site/frames', f'{parent_dir}/media')
+    motion_blurrer.controller(boxes, ids, path, f'{parent_dir}/main_site/frames', f'{parent_dir}/media')
 
     return render(request, 'main_site/processVid.html', context)
