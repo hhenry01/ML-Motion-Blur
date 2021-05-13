@@ -344,7 +344,7 @@ def motion_blur(frame1_path, boxes1, id1, frame2_path, boxes2, id2, blend_weight
       distance = math.sqrt(((direction[0] * 5 / frame1.shape[1]) ** 2) + ((direction[1] * 5 / frame1.shape[0]) ** 2))
 
       #time between frames in 1/fps, so speed is just distance times the frames
-      speed = distance * fps 
+      speed = distance * fps
 
       if speed < 1:
         speed = 1
@@ -399,16 +399,15 @@ def motion_blur(frame1_path, boxes1, id1, frame2_path, boxes2, id2, blend_weight
       if bottom_right[1] > bottom:
         bottom = bottom_right[1]
                         
-      before_frame = move_part(blend, top_left, bottom_right, top_left, 0.6, frame1, 2)
+      before_frame = move_part(blend, top_left, bottom_right, top_left, 1, frame1, 2)
 
       if j >= 1:
-        after_frame = cv2.addWeighted(before_frame, 0.5, after_frame, 0.5, 0)
+        after_frame = move_part(before_frame, top_left, bottom_right, top_left, 1, after_frame, 2)
       else: 
         after_frame = before_frame
 
   if check == 1:
-    final_frame = move_part(after_frame, (left,top), (right,bottom), (left,top), 1, frame1, 2)
-    return (final_frame,1)
+    return (after_frame,1)
   else:
     return (frame1,0)
 
@@ -482,11 +481,11 @@ def controller(boxes, id, path_to_video, path_for_frames, path_to_new_video):
       blurred = motion_blur(f"{path_for_frames}/frame{i}.jpg",boxes[i],id[i],f"{path_for_frames}/frame{i+1}.jpg",
                             boxes[i+1],id[i+1], 0.3, fps)
       
-      if blurred[1] == 1:
-        #add blurred image between frames
-        add_frames_to_video(blurred[0],size,i+1+frames_added,1,frame_array) #200 for testing purposes, change later
-        #keep track of offset needed due to additional frames.
-        frames_added += 1 #change this too
-  
+      
+      #add blurred image between frames
+      add_frames_to_video(blurred[0],size,i+1+frames_added,1,frame_array) #200 for testing purposes, change later
+      #keep track of offset needed due to additional frames.
+      frames_added += 1 #change this too
+
   convert_frames_to_video(f"{path_to_new_video}/output4.avi", int(len(frame_array)/duration), frame_array, size)
   return (frame_array)
