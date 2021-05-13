@@ -477,7 +477,7 @@ def controller(boxes, id, path_to_video, path_for_frames, path_to_new_video):
   frames_added = 0
 
   #count = amount of frames we have.
-  for i in range(count):
+  for i in range(count - 1):
 
       blurred = motion_blur(f"{path_for_frames}/frame{i}.jpg",boxes[i],id[i],f"{path_for_frames}/frame{i+1}.jpg",
                             boxes[i+1],id[i+1], 0.3, fps)
