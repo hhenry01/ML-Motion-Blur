@@ -136,7 +136,7 @@ def track(model, vid_path, device, confidence=0.6, iou=0.4):
     frametime = int((1 / fps) * 1000) # Frametime is 1 / fps. Multiply by 1000 to get it in ms.
     print("Frametime is: " + str(frametime) + " ms")
 
-  # frame = cap.get(cv2.CAP_PROP_POS_FRAMES)
+  frame = cap.get(cv2.CAP_PROP_POS_FRAMES)
   detections = []
   labels = []
   ids = []
