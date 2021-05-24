@@ -30,7 +30,11 @@ pip install -r requirements.txt
 *In Backend/main_site/tracking.py, change ``from . import sort`` to ``import sort`` to make it work on Linux.\
 It has not been tested to work on Mac.*
 
-**WIP**
+1. In the Backend folder, enter ``python manage.py runserver runserver`` in the terminal.
+2. In a browser, enter ``localhost:8000`` or ``http://127.0.0.1:8000/`` as the url.
+3. You should see an option to upload a video. Select a video to upload and wait. When it is done, it will be available to download.
+
+A visual walkthrough of this process is found in both the [video](https://youtu.be/6rk4YBmm4HI) and [report](https://github.com/hhenry01/ML-Motion-Blur/blob/main/reports/final/Team%20Caranotaurus%20Final%20Report.pdf).
 
 Alternatively, while in the Backend/main_site directory, you can run tracking.py with the following arguments to get the same result: 
 ```
@@ -40,7 +44,7 @@ Alternatively, while in the Backend/main_site directory, you can run tracking.py
 Ex.
 python3 tracking.py Model.pt test_samples/person_standing.jpg 0
 ```
-tracking.py also contains the necessary functions to use this project's features
+tracking.py also contains the necessary functions to use this application's features
 in your own project's.
 ## Additional Credits
 A core component of this application was the [SORT](https://github.com/abewley/sort#:~:text=SORT%20is%20a%20barebones%20implementation,object%20identities%20on%20the%20fly.) algorithm. Their work is found in Backend/main_site/sort.py.
